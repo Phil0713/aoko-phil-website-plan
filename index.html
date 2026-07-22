@@ -6,35 +6,140 @@
 
     <title>Aoko and Phil</title>
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        min-height: 100vh;
-        padding: 80px 20px;
-        text-align: center;
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-        background-image: url("background.jpg");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
 
-    h1 {
-        font-size: 48px;
-    }
+            background-image: url("background.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
 
-    p {
-        font-size: 20px;
-    }
-</style>
+        .page-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 50px;
+
+            width: 100%;
+            max-width: 1400px;
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 60px;
+        }
+
+        .content {
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 48px;
+        }
+
+        p {
+            font-size: 20px;
+        }
+
+        /*
+         * This is the visible window.
+         * Any parts of the moving image track outside it are hidden.
+         */
+        .photo-window {
+            height: calc(100vh - 120px);
+            overflow: hidden;
+            border-radius: 16px;
+        }
+
+        /*
+         * This contains two identical sets of images.
+         * The duplicate set makes the animation loop smoothly.
+         */
+        .photo-track {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+
+            animation: move-down 20s linear infinite;
+        }
+
+        .photo-track img {
+            display: block;
+            width: 100%;
+            height: 240px;
+            flex-shrink: 0;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+
+        /*
+         * The track starts raised by half of its total height.
+         * It then moves down to its normal position.
+         * Because the images are duplicated, the reset is not noticeable.
+         */
+        @keyframes move-down {
+            from {
+                transform: translateY(-50%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        /*
+         * Optional: pause the movement when the mouse is over the photos.
+         */
+        .photo-window:hover .photo-track {
+            animation-play-state: paused;
+        }
+
+        @media (max-width: 800px) {
+            .page-layout {
+                grid-template-columns: 1fr;
+                padding: 25px;
+            }
+
+            .photo-window {
+                width: 100%;
+                height: 600px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Aoko and Phil</h1>
-    <p>Welcome to our website.</p>
-    <p>Tomorrow is the day that we first met!</p>
-    <p>那时候的我们还不知道我们将一起度过美好的一整年</p>
+    <main class="page-layout">
+        <section class="content">
+            <h1>Aoko and Phil</h1>
+
+            <p>Welcome to our website.</p>
+            <p>Tomorrow is the day that we first met!</p>
+            <p>那时候的我们还不知道我们将一起度过美好的一整年</p>
+        </section>
+
+        <aside class="photo-window">
+            <div class="photo-track">
+                <!-- First set of photos -->
+                <img src="photo1.jpg" alt="Aoko and Phil">
+                <img src="photo2.jpg" alt="Aoko and Phil">
+                <img src="photo3.jpg" alt="Aoko and Phil">
+                <img src="photo4.jpg" alt="Aoko and Phil">
+
+                <!-- Duplicate set for a continuous loop -->
+                <img src="photo1.jpg" alt="">
+                <img src="photo2.jpg" alt="">
+                <img src="photo3.jpg" alt="">
+                <img src="photo4.jpg" alt="">
+            </div>
+        </aside>
+    </main>
 </body>
 </html>
