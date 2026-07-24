@@ -22,7 +22,7 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
-
+    
         .page-layout {
             display: grid;
             grid-template-columns: 1fr 350px;
@@ -42,6 +42,7 @@
 
         h1 {
             font-size: 48px;
+            font-weight: bold;
         }
 
         p {
@@ -112,6 +113,38 @@
                 height: 600px;
             }
         }
+        .love-counter {
+            margin: 50px auto;
+            width: 350px;
+            height: 250px;
+        
+            background-image: url("sweet.jpg");
+            background-size: cover;
+            background-position: center;
+        
+            border-radius: 20px;
+        
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        
+            color: white;
+        
+            text-shadow: 2px 2px 5px black;
+        }
+        
+        
+        .love-counter p {
+            font-size: 22px;
+            margin: 5px;
+        }
+        
+        
+        .love-counter h2 {
+            font-size: 60px;
+            margin: 10px;
+        }
     </style>
 </head>
 
@@ -120,9 +153,16 @@
         <section class="content">
             <h1>Aoko and Phil</h1>
 
-            <p>Welcome to our website.</p>
-            <p>Today is the day that we first met!</p>
-            <p>那时候的我们还不知道我们将一起度过美好的一整年</p>
+            <p>Welcome to our secret base where we hide our magic!</p>
+            <p>Here you will get to see princess AOKO and daddy PHIL!</p>
+            <p>I will be updating this website all the time!</p>
+            <div class="love-counter">
+                <p>We have been together for</p>
+                <h2 id="days">0</h2>
+                <p>days ❤️</p>
+                <h2 id ="daysleft">0</h2>
+                <p>until anniversary!</p>
+            </div>
         </section>
 
         <aside class="photo-window">
@@ -141,5 +181,52 @@
             </div>
         </aside>
     </main>
+    
+    <script>
+
+        const startDate = new Date("2025-08-01");
+    
+        let today = new Date();
+    
+        let difference = today - startDate;
+    
+        let days = Math.floor(
+            difference / (1000 * 60 * 60 * 24)
+        );
+
+
+
+        // Current year anniversary
+        let anniversary = new Date(
+            today.getFullYear(),
+            7, // August (months start from 0)
+            1
+        );
+    
+    
+        // If anniversary already passed this year,
+        // move to next year's anniversary
+        if (today > anniversary) {
+            anniversary.setFullYear(
+                today.getFullYear() + 1
+            );
+        }
+    
+    
+        // Difference in milliseconds
+        let time_left = anniversary - today;
+    
+    
+        // Convert milliseconds to days
+        const daysLeft = Math.ceil(
+            time_left / (1000 * 60 * 60 * 24)
+        );
+
+        
+            
+        document.getElementById("daysleft").textContent = daysLeft;
+        document.getElementById("days").textContent = days;
+    
+    </script>
 </body>
 </html>
