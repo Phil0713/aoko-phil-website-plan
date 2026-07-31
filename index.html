@@ -7,6 +7,60 @@
     <title>Aoko and Phil</title>
 
     <style>
+        #anniversary-message {
+            display: none;
+            margin: 10px 0 30px;
+        
+            font-size: clamp(42px, 7vw, 90px);
+            font-weight: 900;
+            line-height: 1.1;
+        
+            background: linear-gradient(
+                90deg,
+                #ff1744,
+                #ff8a00,
+                #ffd600,
+                #00c853,
+                #00b0ff,
+                #651fff,
+                #d500f9,
+                #ff1744
+            );
+        
+            background-size: 300% auto;
+            background-clip: text;
+            -webkit-background-clip: text;
+        
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        
+            animation:
+                rainbow-move 3s linear infinite,
+                anniversary-pulse 1.5s ease-in-out infinite;
+        
+            filter: drop-shadow(0 4px 5px rgba(255, 255, 255, 0.9));
+        }
+        
+        @keyframes rainbow-move {
+            from {
+                background-position: 0% center;
+            }
+        
+            to {
+                background-position: 300% center;
+            }
+        }
+        
+        @keyframes anniversary-pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+        
+            50% {
+                transform: scale(1.08);
+            }
+        }
         * {
             box-sizing: border-box;
         }
@@ -152,6 +206,10 @@
     <main class="page-layout">
         <section class="content">
             <h1>Aoko and Phil</h1>
+            
+            <h2 id="anniversary-message">
+                Happy Anniversary! ❤️
+            </h2>
 
             <p>Welcome to our secret base where we hide our magic!</p>
             <p>Here you will get to see princess AOKO and daddy PHIL!</p>
@@ -184,50 +242,67 @@
     </main>
     
     <script>
-
-        const startDate = new Date("2025-08-01");
+        const millisecondsPerDay = 1000 * 60 * 60 * 24;
     
-        let today = new Date();
+        /*
+         * Use local dates at midnight so that the current time of day
+         * does not cause incorrect day calculations.
+         */
+        const currentTime = new Date();
     
-        let difference = today - startDate;
-    
-        let days = Math.floor(
-            difference / (1000 * 60 * 60 * 24)
+        const today = new Date(
+            currentTime.getFullYear(),
+            currentTime.getMonth(),
+            currentTime.getDate()
         );
-
-
-
-        // Current year anniversary
+    
+        const startDate = new Date(2025, 7, 1); // 1 August 2025
+    
+        /*
+         * Calculate how many complete calendar days you have been together.
+         */
+        const difference = today - startDate;
+        const days = Math.floor(difference / millisecondsPerDay);
+    
+        /*
+         * Create the anniversary date for the current year.
+         */
         let anniversary = new Date(
             today.getFullYear(),
-            7, // August (months start from 0)
+            7, // August: JavaScript starts counting months from 0
             1
         );
     
-    
-        // If anniversary already passed this year,
-        // move to next year's anniversary
+        /*
+         * Only move to next year's anniversary when this year's
+         * anniversary has completely passed.
+         *
+         * Because both dates are at midnight, 1 August itself produces
+         * daysLeft === 0.
+         */
         if (today > anniversary) {
-            anniversary.setFullYear(
-                today.getFullYear() + 1
+            anniversary = new Date(
+                today.getFullYear() + 1,
+                7,
+                1
             );
         }
     
+        const timeLeft = anniversary - today;
+        const daysLeft = Math.round(timeLeft / millisecondsPerDay);
     
-        // Difference in milliseconds
-        let time_left = anniversary - today;
-    
-    
-        // Convert milliseconds to days
-        const daysLeft = Math.ceil(
-            time_left / (1000 * 60 * 60 * 24)
-        );
-
-        
-            
-        document.getElementById("daysleft").textContent = daysLeft;
         document.getElementById("days").textContent = days;
+        document.getElementById("daysleft").textContent = daysLeft;
     
-    </script>
+        /*
+         * Show the colourful message only when the countdown reaches zero.
+         */
+        const anniversaryMessage =
+            document.getElementById("anniversary-message");
+    
+        if (daysLeft === 0) {
+            anniversaryMessage.style.display = "block";
+        }
+</script>
 </body>
 </html>
