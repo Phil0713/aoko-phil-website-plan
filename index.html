@@ -2,65 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Aoko and Phil</title>
 
     <style>
-        #anniversary-message {
-            display: none;
-            margin: 10px 0 30px;
-        
-            font-size: clamp(42px, 7vw, 90px);
-            font-weight: 900;
-            line-height: 1.1;
-        
-            background: linear-gradient(
-                90deg,
-                #ff1744,
-                #ff8a00,
-                #ffd600,
-                #00c853,
-                #00b0ff,
-                #651fff,
-                #d500f9,
-                #ff1744
-            );
-        
-            background-size: 300% auto;
-            background-clip: text;
-            -webkit-background-clip: text;
-        
-            color: transparent;
-            -webkit-text-fill-color: transparent;
-        
-            animation:
-                rainbow-move 3s linear infinite,
-                anniversary-pulse 1.5s ease-in-out infinite;
-        
-            filter: drop-shadow(0 4px 5px rgba(255, 255, 255, 0.9));
-        }
-        
-        @keyframes rainbow-move {
-            from {
-                background-position: 0% center;
-            }
-        
-            to {
-                background-position: 300% center;
-            }
-        }
-        
-        @keyframes anniversary-pulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-        
-            50% {
-                transform: scale(1.08);
-            }
-        }
         * {
             box-sizing: border-box;
         }
@@ -76,7 +25,22 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
-    
+
+        /*
+         * Full-screen fireworks layer.
+         * It stays behind the website content and does not block clicks.
+         */
+        #fireworks-canvas {
+            position: fixed;
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .page-layout {
             display: grid;
             grid-template-columns: 1fr 350px;
@@ -87,6 +51,12 @@
             min-height: 100vh;
             margin: 0 auto;
             padding: 60px;
+
+            /*
+             * Keep the page content in front of the fireworks.
+             */
+            position: relative;
+            z-index: 1;
         }
 
         .content {
@@ -104,8 +74,69 @@
         }
 
         /*
-         * This is the visible window.
-         * Any parts of the moving image track outside it are hidden.
+         * Hidden on ordinary days.
+         * JavaScript displays it on 1 August.
+         */
+        #anniversary-message {
+            display: none;
+            margin: 10px 0 30px;
+
+            font-size: clamp(42px, 7vw, 90px);
+            font-weight: 900;
+            line-height: 1.1;
+
+            background: linear-gradient(
+                90deg,
+                #ff1744,
+                #ff8a00,
+                #ffd600,
+                #00c853,
+                #00b0ff,
+                #651fff,
+                #d500f9,
+                #ff1744
+            );
+
+            background-size: 300% auto;
+            background-clip: text;
+            -webkit-background-clip: text;
+
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+
+            animation:
+                rainbow-move 3s linear infinite,
+                anniversary-pulse 1.5s ease-in-out infinite;
+
+            filter:
+                drop-shadow(
+                    0 4px 5px rgba(255, 255, 255, 0.9)
+                );
+        }
+
+        @keyframes rainbow-move {
+            from {
+                background-position: 0% center;
+            }
+
+            to {
+                background-position: 300% center;
+            }
+        }
+
+        @keyframes anniversary-pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        /*
+         * Visible window for the moving photographs.
          */
         .photo-window {
             height: calc(100vh - 120px);
@@ -114,8 +145,7 @@
         }
 
         /*
-         * This contains two identical sets of images.
-         * The duplicate set makes the animation loop smoothly.
+         * The duplicated photographs allow the movement to loop.
          */
         .photo-track {
             display: flex;
@@ -130,15 +160,11 @@
             width: 100%;
             height: 240px;
             flex-shrink: 0;
+
             object-fit: cover;
             border-radius: 16px;
         }
 
-        /*
-         * The track starts raised by half of its total height.
-         * It then moves down to its normal position.
-         * Because the images are duplicated, the reset is not noticeable.
-         */
         @keyframes move-down {
             from {
                 transform: translateY(-50%);
@@ -150,10 +176,40 @@
         }
 
         /*
-         * Optional: pause the movement when the mouse is over the photos.
+         * Pause the photo animation when the mouse is over it.
          */
         .photo-window:hover .photo-track {
             animation-play-state: paused;
+        }
+
+        .love-counter {
+            margin: 50px auto;
+            width: 350px;
+            height: 350px;
+
+            background-image: url("sweet.jpg");
+            background-size: cover;
+            background-position: center;
+
+            border-radius: 20px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            color: white;
+            text-shadow: 2px 2px 5px black;
+        }
+
+        .love-counter p {
+            font-size: 22px;
+            margin: 5px;
+        }
+
+        .love-counter h2 {
+            font-size: 60px;
+            margin: 10px;
         }
 
         @media (max-width: 800px) {
@@ -166,73 +222,86 @@
                 width: 100%;
                 height: 600px;
             }
+
+            .love-counter {
+                width: min(350px, 100%);
+            }
         }
-        .love-counter {
-            margin: 50px auto;
-            width: 350px;
-            height: 350px;
-        
-            background-image: url("sweet.jpg");
-            background-size: cover;
-            background-position: center;
-        
-            border-radius: 20px;
-        
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        
-            color: white;
-        
-            text-shadow: 2px 2px 5px black;
-        }
-        
-        
-        .love-counter p {
-            font-size: 22px;
-            margin: 5px;
-        }
-        
-        
-        .love-counter h2 {
-            font-size: 60px;
-            margin: 10px;
+
+        /*
+         * Respect accessibility preferences by reducing animation.
+         */
+        @media (prefers-reduced-motion: reduce) {
+            .photo-track,
+            #anniversary-message {
+                animation: none;
+            }
         }
     </style>
 </head>
 
 <body>
+    <canvas id="fireworks-canvas"></canvas>
+
     <main class="page-layout">
         <section class="content">
             <h1>Aoko and Phil</h1>
-            
+
             <h2 id="anniversary-message">
                 Happy Anniversary! ❤️
             </h2>
 
-            <p>Welcome to our secret base where we hide our magic!</p>
-            <p>Here you will get to see princess AOKO and daddy PHIL!</p>
-            <p>I will be updating this website all the time!</p>
-            <p>Version 5.1</p>
+            <p>
+                Welcome to our secret base where we hide our magic!
+            </p>
+
+            <p>
+                Here you will get to see princess AOKO and daddy PHIL!
+            </p>
+
+            <p>
+                I will be updating this website all the time!
+            </p>
+
+            <p>Version 6.0</p>
+
             <div class="love-counter">
                 <p>We have been together for</p>
+
                 <h2 id="days">0</h2>
+
                 <p>days ❤️</p>
-                <h2 id ="daysleft">0</h2>
+
+                <h2 id="daysleft">0</h2>
+
                 <p>until anniversary!</p>
             </div>
         </section>
 
         <aside class="photo-window">
             <div class="photo-track">
-                <!-- First set of photos -->
-                <img src="photo1.jpg" alt="Aoko and Phil">
-                <img src="photo2.jpg" alt="Aoko and Phil">
-                <img src="photo3.jpg" alt="Aoko and Phil">
-                <img src="photo4.jpg" alt="Aoko and Phil">
+                <!-- First set -->
+                <img
+                    src="photo1.jpg"
+                    alt="Aoko and Phil"
+                >
 
-                <!-- Duplicate set for a continuous loop -->
+                <img
+                    src="photo2.jpg"
+                    alt="Aoko and Phil"
+                >
+
+                <img
+                    src="photo3.jpg"
+                    alt="Aoko and Phil"
+                >
+
+                <img
+                    src="photo4.jpg"
+                    alt="Aoko and Phil"
+                >
+
+                <!-- Duplicate set for the continuous loop -->
                 <img src="photo1.jpg" alt="">
                 <img src="photo2.jpg" alt="">
                 <img src="photo3.jpg" alt="">
@@ -240,69 +309,333 @@
             </div>
         </aside>
     </main>
-    
+
     <script>
-        const millisecondsPerDay = 1000 * 60 * 60 * 24;
-    
+        const millisecondsPerDay =
+            1000 * 60 * 60 * 24;
+
+        const daysElement =
+            document.getElementById("days");
+
+        const daysLeftElement =
+            document.getElementById("daysleft");
+
+        const anniversaryMessage =
+            document.getElementById(
+                "anniversary-message"
+            );
+
+        let fireworksStarted = false;
+
         /*
-         * Use local dates at midnight so that the current time of day
-         * does not cause incorrect day calculations.
+         * Convert a local calendar date into a UTC timestamp.
+         * This avoids daylight-saving-time calculation errors.
          */
-        const currentTime = new Date();
-    
-        const today = new Date(
-            currentTime.getFullYear(),
-            currentTime.getMonth(),
-            currentTime.getDate()
-        );
-    
-        const startDate = new Date(2025, 7, 1); // 1 August 2025
-    
-        /*
-         * Calculate how many complete calendar days you have been together.
-         */
-        const difference = today - startDate;
-        const days = Math.floor(difference / millisecondsPerDay);
-    
-        /*
-         * Create the anniversary date for the current year.
-         */
-        let anniversary = new Date(
-            today.getFullYear(),
-            7, // August: JavaScript starts counting months from 0
-            1
-        );
-    
-        /*
-         * Only move to next year's anniversary when this year's
-         * anniversary has completely passed.
-         *
-         * Because both dates are at midnight, 1 August itself produces
-         * daysLeft === 0.
-         */
-        if (today > anniversary) {
-            anniversary = new Date(
-                today.getFullYear() + 1,
-                7,
-                1
+        function getUtcDateNumber(date) {
+            return Date.UTC(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate()
             );
         }
-    
-        const timeLeft = anniversary - today;
-        const daysLeft = Math.round(timeLeft / millisecondsPerDay);
-    
-        document.getElementById("days").textContent = days;
-        document.getElementById("daysleft").textContent = daysLeft;
-    
-        /*
-         * Show the colourful message only when the countdown reaches zero.
-         */
-        const anniversaryMessage =
-            document.getElementById("anniversary-message");
-    
-        if (daysLeft === 0) {
-            anniversaryMessage.style.display = "block";
+
+        function updateCounters() {
+            const now = new Date();
+
+            const todayUtc =
+                getUtcDateNumber(now);
+
+            const startDateUtc =
+                Date.UTC(2025, 7, 1);
+
+            const daysTogether =
+                Math.floor(
+                    (
+                        todayUtc -
+                        startDateUtc
+                    ) / millisecondsPerDay
+                );
+
+            let anniversaryYear =
+                now.getFullYear();
+
+            let anniversaryUtc =
+                Date.UTC(
+                    anniversaryYear,
+                    7,
+                    1
+                );
+
+            /*
+             * After 1 August has passed, count down to
+             * 1 August of the following year.
+             */
+            if (todayUtc > anniversaryUtc) {
+                anniversaryYear++;
+
+                anniversaryUtc =
+                    Date.UTC(
+                        anniversaryYear,
+                        7,
+                        1
+                    );
+            }
+
+            const daysLeft =
+                Math.round(
+                    (
+                        anniversaryUtc -
+                        todayUtc
+                    ) / millisecondsPerDay
+                );
+
+            daysElement.textContent =
+                daysTogether;
+
+            daysLeftElement.textContent =
+                daysLeft;
+
+            /*
+             * On 1 August, show the anniversary message
+             * and start the fireworks.
+             */
+            if (daysLeft === 0) {
+                anniversaryMessage.style.display =
+                    "block";
+
+                if (!fireworksStarted) {
+                    fireworksStarted = true;
+                    startFireworks();
+                }
+            } else {
+                anniversaryMessage.style.display =
+                    "none";
+            }
         }
-</script>
+
+        function startFireworks() {
+            const canvas =
+                document.getElementById(
+                    "fireworks-canvas"
+                );
+
+            const context =
+                canvas.getContext("2d");
+
+            const particles = [];
+
+            function resizeCanvas() {
+                const pixelRatio =
+                    window.devicePixelRatio || 1;
+
+                canvas.width =
+                    window.innerWidth *
+                    pixelRatio;
+
+                canvas.height =
+                    window.innerHeight *
+                    pixelRatio;
+
+                canvas.style.width =
+                    `${window.innerWidth}px`;
+
+                canvas.style.height =
+                    `${window.innerHeight}px`;
+
+                context.setTransform(
+                    pixelRatio,
+                    0,
+                    0,
+                    pixelRatio,
+                    0,
+                    0
+                );
+            }
+
+            resizeCanvas();
+
+            window.addEventListener(
+                "resize",
+                resizeCanvas
+            );
+
+            function createFirework() {
+                const x =
+                    Math.random() *
+                    window.innerWidth;
+
+                const y =
+                    window.innerHeight *
+                    (
+                        0.15 +
+                        Math.random() * 0.55
+                    );
+
+                const particleCount = 90;
+                const hue =
+                    Math.random() * 360;
+
+                for (
+                    let i = 0;
+                    i < particleCount;
+                    i++
+                ) {
+                    const angle =
+                        (
+                            Math.PI *
+                            2 *
+                            i
+                        ) / particleCount;
+
+                    const speed =
+                        1.5 +
+                        Math.random() * 4.5;
+
+                    particles.push({
+                        x: x,
+                        y: y,
+
+                        velocityX:
+                            Math.cos(angle) *
+                            speed,
+
+                        velocityY:
+                            Math.sin(angle) *
+                            speed,
+
+                        gravity: 0.035,
+                        opacity: 1,
+
+                        size:
+                            1.5 +
+                            Math.random() * 2.5,
+
+                        hue: hue
+                    });
+                }
+            }
+
+            function updateParticles() {
+                for (
+                    let i =
+                        particles.length - 1;
+                    i >= 0;
+                    i--
+                ) {
+                    const particle =
+                        particles[i];
+
+                    particle.x +=
+                        particle.velocityX;
+
+                    particle.y +=
+                        particle.velocityY;
+
+                    particle.velocityY +=
+                        particle.gravity;
+
+                    particle.velocityX *=
+                        0.99;
+
+                    particle.opacity -=
+                        0.012;
+
+                    if (
+                        particle.opacity <= 0
+                    ) {
+                        particles.splice(i, 1);
+                    }
+                }
+            }
+
+            function drawParticles() {
+                context.clearRect(
+                    0,
+                    0,
+                    window.innerWidth,
+                    window.innerHeight
+                );
+
+                context.globalCompositeOperation =
+                    "lighter";
+
+                for (
+                    const particle of particles
+                ) {
+                    context.beginPath();
+
+                    context.arc(
+                        particle.x,
+                        particle.y,
+                        particle.size,
+                        0,
+                        Math.PI * 2
+                    );
+
+                    context.fillStyle =
+                        `hsla(
+                            ${particle.hue},
+                            100%,
+                            65%,
+                            ${particle.opacity}
+                        )`;
+
+                    context.fill();
+                }
+
+                context.globalCompositeOperation =
+                    "source-over";
+            }
+
+            function animate() {
+                updateParticles();
+                drawParticles();
+
+                requestAnimationFrame(
+                    animate
+                );
+            }
+
+            /*
+             * Launch several fireworks immediately.
+             */
+            createFirework();
+
+            setTimeout(
+                createFirework,
+                250
+            );
+
+            setTimeout(
+                createFirework,
+                500
+            );
+
+            /*
+             * Continue launching fireworks throughout
+             * the anniversary day.
+             */
+            setInterval(
+                createFirework,
+                700
+            );
+
+            animate();
+        }
+
+        /*
+         * Calculate immediately when the page opens.
+         */
+        updateCounters();
+
+        /*
+         * Recalculate every minute so that a page left open
+         * across midnight updates automatically.
+         */
+        setInterval(
+            updateCounters,
+            60 * 1000
+        );
+    </script>
 </body>
 </html>
