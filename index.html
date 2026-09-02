@@ -2,237 +2,453 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aoko and Phil</title>
 
     <style>
+        :root {
+            --sidebar-width: 260px;
+            --wine: #431528;
+            --wine-light: #8e2f54;
+            --pink: #f3bfd1;
+            --paper: #fff8fb;
+            --text: #351522;
+            --muted: #785466;
+        }
+
         * {
             box-sizing: border-box;
         }
 
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            min-height: 100vh;
-
-            background-image: url("background.jpg");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+        html {
+            scroll-behavior: smooth;
         }
 
-        /*
-         * Full-screen fireworks layer.
-         * It stays behind the website content and does not block clicks.
-         */
+        body {
+            margin: 0;
+            color: var(--text);
+            font-family: Arial, sans-serif;
+            background:
+                linear-gradient(rgba(255, 248, 251, 0.9), rgba(255, 248, 251, 0.9)),
+                url("background.jpg") center / cover fixed no-repeat;
+        }
+
         #fireworks-canvas {
             position: fixed;
             inset: 0;
-
+            z-index: 20;
             width: 100%;
             height: 100%;
-
             pointer-events: none;
-            z-index: 0;
         }
 
-        .page-layout {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 50px;
-
-            width: 100%;
-            max-width: 1400px;
-            min-height: 100vh;
-            margin: 0 auto;
-            padding: 60px;
-
-            /*
-             * Keep the page content in front of the fireworks.
-             */
-            position: relative;
-            z-index: 1;
+        /* Fixed section menu */
+        .side-menu {
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 10;
+            display: flex;
+            width: var(--sidebar-width);
+            flex-direction: column;
+            padding: 34px 24px;
+            color: white;
+            background:
+                radial-gradient(circle at 15% 8%, #7a2a4b 0, transparent 32%),
+                linear-gradient(165deg, #431528, #27101c);
+            box-shadow: 12px 0 40px rgba(67, 21, 40, 0.12);
         }
 
-        .content {
-            padding-top: 20px;
+        .menu-brand {
+            padding-bottom: 28px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
             text-align: center;
         }
 
-        h1 {
-            font-size: 48px;
-            font-weight: bold;
+        .menu-brand strong {
+            display: block;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 25px;
         }
 
-        p {
-            font-size: 20px;
+        .menu-brand span {
+            display: block;
+            margin-top: 7px;
+            color: #eab3c8;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        /*
-         * Hidden on ordinary days.
-         * JavaScript displays it on 1 August.
-         */
-        #anniversary-message {
-            display: none;
-            margin: 10px 0 30px;
-
-            font-size: clamp(42px, 7vw, 90px);
-            font-weight: 900;
-            line-height: 1.1;
-
-            background: linear-gradient(
-                90deg,
-                #ff1744,
-                #ff8a00,
-                #ffd600,
-                #00c853,
-                #00b0ff,
-                #651fff,
-                #d500f9,
-                #ff1744
-            );
-
-            background-size: 300% auto;
-            background-clip: text;
-            -webkit-background-clip: text;
-
-            color: transparent;
-            -webkit-text-fill-color: transparent;
-
-            animation:
-                rainbow-move 3s linear infinite,
-                anniversary-pulse 1.5s ease-in-out infinite;
-
-            filter:
-                drop-shadow(
-                    0 4px 5px rgba(255, 255, 255, 0.9)
-                );
-        }
-
-        @keyframes rainbow-move {
-            from {
-                background-position: 0% center;
-            }
-
-            to {
-                background-position: 300% center;
-            }
-        }
-
-        @keyframes anniversary-pulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.08);
-            }
-        }
-
-        /*
-         * Visible window for the moving photographs.
-         */
-        .photo-window {
-            height: calc(100vh - 120px);
-            overflow: hidden;
-            border-radius: 16px;
-        }
-
-        /*
-         * The duplicated photographs allow the movement to loop.
-         */
-        .photo-track {
+        .side-menu ul {
             display: flex;
             flex-direction: column;
-            gap: 24px;
-
-            animation: move-down 20s linear infinite;
+            gap: 8px;
+            margin: 38px 0 0;
+            padding: 0;
+            list-style: none;
         }
 
-        .photo-track img {
-            display: block;
-            width: 100%;
-            height: 240px;
-            flex-shrink: 0;
-
-            object-fit: cover;
-            border-radius: 16px;
+        .side-menu a {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            min-height: 48px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            color: #fcebf2;
+            font-size: 15px;
+            text-decoration: none;
+            transition: background 180ms ease, transform 180ms ease;
         }
 
-        @keyframes move-down {
-            from {
-                transform: translateY(-50%);
-            }
-
-            to {
-                transform: translateY(0);
-            }
+        .side-menu a:hover,
+        .side-menu a:focus-visible {
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            transform: translateX(4px);
         }
 
-        /*
-         * Pause the photo animation when the mouse is over it.
-         */
-        .photo-window:hover .photo-track {
-            animation-play-state: paused;
+        .menu-number {
+            width: 24px;
+            color: #d28aa5;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .menu-date {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            color: #dca2b7;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        main {
+            margin-left: var(--sidebar-width);
+        }
+
+        .page-section {
+            position: relative;
+            display: grid;
+            min-height: 100vh;
+            place-items: center;
+            padding: 90px clamp(28px, 7vw, 110px);
+            scroll-margin-top: 0;
+            text-align: center;
+        }
+
+        .page-section::after {
+            content: "";
+            position: absolute;
+            right: 7%;
+            bottom: 0;
+            left: 7%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(142, 47, 84, 0.28), transparent);
+        }
+
+        .section-content {
+            position: relative;
+            z-index: 1;
+            width: min(100%, 850px);
+            margin: 0 auto;
+        }
+
+        .eyebrow {
+            margin: 0 0 18px;
+            color: var(--wine-light);
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        h1,
+        h2 {
+            margin: 0;
+            color: var(--wine);
+            font-family: Georgia, "Times New Roman", serif;
+            font-weight: 500;
+        }
+
+        h1 {
+            font-size: clamp(64px, 10vw, 130px);
+            line-height: 0.92;
+            letter-spacing: -7px;
+        }
+
+        h1 span {
+            color: #b9567b;
+            font-style: italic;
+        }
+
+        h2 {
+            font-size: clamp(42px, 6vw, 72px);
+            line-height: 1.05;
+            letter-spacing: -2px;
+        }
+
+        .lead,
+        .section-text {
+            max-width: 650px;
+            margin: 28px auto 0;
+            color: var(--muted);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(18px, 2vw, 22px);
+            line-height: 1.7;
+        }
+
+        .jump-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 38px;
+            padding: 13px 19px;
+            border: 1px solid rgba(142, 47, 84, 0.35);
+            border-radius: 999px;
+            color: #7c2949;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        #intro::before {
+            content: "";
+            position: absolute;
+            width: min(70vw, 700px);
+            aspect-ratio: 1;
+            border: 1px solid rgba(185, 86, 123, 0.18);
+            border-radius: 50%;
+            box-shadow:
+                0 0 0 70px rgba(255, 255, 255, 0.18),
+                0 0 0 140px rgba(255, 255, 255, 0.1);
+        }
+
+        #history {
+            background: rgba(255, 255, 255, 0.56);
         }
 
         .love-counter {
-            margin: 50px auto;
-            width: 350px;
-            height: 350px;
-
-            background-image: url("sweet.jpg");
-            background-size: cover;
-            background-position: center;
-
-            border-radius: 20px;
-
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-
+            position: relative;
+            width: min(100%, 420px);
+            min-height: 360px;
+            margin: 52px auto 0;
+            padding: 45px 28px;
+            border: 1px solid rgba(142, 47, 84, 0.24);
+            border-radius: 34px;
+            background:
+                linear-gradient(rgba(62, 15, 35, 0.55), rgba(62, 15, 35, 0.55)),
+                url("sweet.jpg") center / cover no-repeat,
+                linear-gradient(145deg, #9e315c, #431528);
+            box-shadow: 0 30px 75px rgba(67, 21, 40, 0.18);
             color: white;
-            text-shadow: 2px 2px 5px black;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
         }
 
         .love-counter p {
-            font-size: 22px;
-            margin: 5px;
+            margin: 8px 0;
+            font-size: 18px;
         }
 
-        .love-counter h2 {
-            font-size: 60px;
-            margin: 10px;
+        .love-counter strong {
+            display: block;
+            margin: 8px 0;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(68px, 10vw, 105px);
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        .love-counter .small-number {
+            margin-top: 28px;
+            font-family: Arial, sans-serif;
+            font-size: 38px;
+            font-weight: bold;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 45px;
+        }
+
+        .photo-grid img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border: 7px solid white;
+            border-radius: 22px;
+            box-shadow: 0 18px 45px rgba(67, 21, 40, 0.14);
+        }
+
+        #future {
+            color: white;
+            background: linear-gradient(150deg, #4a172c, #27101c);
+        }
+
+        #future .eyebrow {
+            color: #f1a8c2;
+        }
+
+        #future h2 {
+            color: #fff8fb;
+        }
+
+        #future .section-text {
+            color: #e7c2d0;
+        }
+
+        .future-note {
+            display: inline-block;
+            margin-top: 36px;
+            padding: 15px 22px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            color: #f4d5e1;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        #anniversary-message {
+            display: none;
+            margin: 24px 0;
+            font-size: clamp(40px, 7vw, 82px);
+            font-weight: 900;
+            line-height: 1.05;
+            background: linear-gradient(90deg, #ff1744, #ff8a00, #ffd600, #00c853, #00b0ff, #651fff, #d500f9);
+            background-size: 300% auto;
+            background-clip: text;
+            color: transparent;
+            animation: rainbow-move 3s linear infinite, anniversary-pulse 1.5s ease-in-out infinite;
+        }
+
+        .anniversary-countdown {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 10px;
+            margin: 28px 0 36px;
+            color: var(--muted);
+        }
+
+        .anniversary-countdown strong {
+            color: var(--wine-light);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 58px;
+            font-weight: 500;
+        }
+
+        .video-frame {
+            width: min(100%, 800px);
+            margin: 0 auto;
+            padding: 9px;
+            border: 1px solid rgba(142, 47, 84, 0.25);
+            border-radius: 25px;
+            background: white;
+            box-shadow: 0 30px 75px rgba(67, 21, 40, 0.16);
+        }
+
+        .video-frame video {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 17px;
+            background: #27101c;
+            object-fit: cover;
+        }
+
+        .video-caption {
+            margin: 17px 0 0;
+            color: var(--muted);
+            font-family: Georgia, "Times New Roman", serif;
+            font-style: italic;
+        }
+
+        @keyframes rainbow-move {
+            from { background-position: 0% center; }
+            to { background-position: 300% center; }
+        }
+
+        @keyframes anniversary-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
         }
 
         @media (max-width: 800px) {
-            .page-layout {
-                grid-template-columns: 1fr;
-                padding: 25px;
+            :root {
+                --sidebar-width: 0px;
             }
 
-            .photo-window {
+            .side-menu {
+                inset: 0 0 auto 0;
                 width: 100%;
-                height: 600px;
+                height: auto;
+                padding: 10px 14px;
+                overflow-x: auto;
             }
 
-            .love-counter {
-                width: min(350px, 100%);
+            .menu-brand,
+            .menu-date {
+                display: none;
+            }
+
+            .side-menu ul {
+                flex-direction: row;
+                gap: 5px;
+                width: max-content;
+                margin: 0;
+            }
+
+            .side-menu a {
+                min-height: 42px;
+                padding: 8px 12px;
+                white-space: nowrap;
+            }
+
+            .side-menu a:hover,
+            .side-menu a:focus-visible {
+                transform: none;
+            }
+
+            .menu-number {
+                display: none;
+            }
+
+            main {
+                margin-left: 0;
+                padding-top: 62px;
+            }
+
+            .page-section {
+                min-height: calc(100vh - 62px);
+                padding: 70px 22px;
+                scroll-margin-top: 62px;
+            }
+
+            h1 {
+                letter-spacing: -4px;
+            }
+
+            .photo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .anniversary-countdown {
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
             }
         }
 
-        /*
-         * Respect accessibility preferences by reducing animation.
-         */
         @media (prefers-reduced-motion: reduce) {
-            .photo-track,
+            html {
+                scroll-behavior: auto;
+            }
+
             #anniversary-message {
                 animation: none;
             }
@@ -241,401 +457,232 @@
 </head>
 
 <body>
-    <canvas id="fireworks-canvas"></canvas>
+    <canvas id="fireworks-canvas" aria-hidden="true"></canvas>
 
-    <main class="page-layout">
-        <section class="content">
-            <h1>Aoko and Phil</h1>
+    <nav class="side-menu" aria-label="Page sections">
+        <div class="menu-brand">
+            <strong>Aoko &amp; Phil</strong>
+            <span>Our little corner</span>
+        </div>
 
-            <h2 id="anniversary-message">
-                Happy Anniversary! ❤️
-            </h2>
+        <ul>
+            <li><a href="#intro"><span class="menu-number">01</span>Intro</a></li>
+            <li><a href="#history"><span class="menu-number">02</span>History</a></li>
+            <li><a href="#memories"><span class="menu-number">03</span>Memories</a></li>
+            <li><a href="#future"><span class="menu-number">04</span>Future plans</a></li>
+            <li><a href="#anniversary"><span class="menu-number">05</span>Anniversary</a></li>
+        </ul>
 
-            <p>
-                Welcome to our secret base where we hide our magic!
-            </p>
+        <p class="menu-date">Est. 01 · 08 · 2025</p>
+    </nav>
 
-            <p>
-                Here you will get to see princess AOKO and daddy PHIL!
-            </p>
-
-            <p>
-                I will be updating this website all the time!
-            </p>
-
-            <p>Version 6.0</p>
-
-            <div class="love-counter">
-                <p>We have been together for</p>
-
-                <h2 id="days">0</h2>
-
-                <p>days ❤️</p>
-
-                <h2 id="daysleft">0</h2>
-
-                <p>until anniversary!</p>
+    <main>
+        <section id="intro" class="page-section">
+            <div class="section-content">
+                <p class="eyebrow">Our secret base</p>
+                <h1>Aoko <span>&amp;</span> Phil</h1>
+                <p class="lead">
+                    Welcome to our secret base where we hide our magic!
+                    Here you will get to see princess AOKO and daddy PHIL.
+                </p>
+                <a class="jump-button" href="#history">Begin our story <span aria-hidden="true">↓</span></a>
             </div>
         </section>
 
-        <aside class="photo-window">
-            <div class="photo-track">
-                <!-- First set -->
-                <img
-                    src="photo1.jpg"
-                    alt="Aoko and Phil"
-                >
+        <section id="history" class="page-section">
+            <div class="section-content">
+                <p class="eyebrow">Our history</p>
+                <h2>Every day becomes part of our story.</h2>
+                <p class="section-text">
+                    Our chapter began on 1 August 2025. This page keeps time with us
+                    and will continue to grow as we create new memories together.
+                </p>
 
-                <img
-                    src="photo2.jpg"
-                    alt="Aoko and Phil"
-                >
-
-                <img
-                    src="photo3.jpg"
-                    alt="Aoko and Phil"
-                >
-
-                <img
-                    src="photo4.jpg"
-                    alt="Aoko and Phil"
-                >
-
-                <!-- Duplicate set for the continuous loop -->
-                <img src="photo1.jpg" alt="">
-                <img src="photo2.jpg" alt="">
-                <img src="photo3.jpg" alt="">
-                <img src="photo4.jpg" alt="">
+                <div class="love-counter" aria-live="polite">
+                    <p>We have been together for</p>
+                    <strong id="days">0</strong>
+                    <p>days ❤️</p>
+                    <strong id="daysleft" class="small-number">0</strong>
+                    <p>days until our anniversary</p>
+                </div>
             </div>
-        </aside>
+        </section>
+
+        <section id="memories" class="page-section">
+            <div class="section-content">
+                <p class="eyebrow">Memories</p>
+                <h2>Some favorite moments.</h2>
+                <div class="photo-grid">
+                    <img src="photo1.jpg" alt="Aoko and Phil together">
+                    <img src="photo2.jpg" alt="Aoko and Phil together">
+                    <img src="photo3.jpg" alt="Aoko and Phil together">
+                    <img src="photo4.jpg" alt="Aoko and Phil together">
+                </div>
+            </div>
+        </section>
+
+        <section id="future" class="page-section">
+            <div class="section-content">
+                <p class="eyebrow">Future plans</p>
+                <h2>There is so much still ahead.</h2>
+                <p class="section-text">
+                    More adventures, more laughter, more photos, and more updates
+                    to this little corner of ours. We get to write what comes next together.
+                </p>
+                <p class="future-note">New memories will always have a home here. ❤️</p>
+            </div>
+        </section>
+
+        <section id="anniversary" class="page-section">
+            <div class="section-content">
+                <p class="eyebrow">Anniversary</p>
+                <h2>Counting down to our special day.</h2>
+
+                <div id="anniversary-message">Happy Anniversary! ❤️</div>
+
+                <p class="anniversary-countdown">
+                    <strong id="anniversary-days">0</strong>
+                    <span>days until 1 August</span>
+                </p>
+
+                <div class="video-frame">
+                    <video controls preload="metadata" playsinline poster="sweet.jpg">
+                        <source src="anniversary.mp4" type="video/mp4">
+                        Your browser does not support the video element.
+                    </video>
+                </div>
+                <p class="video-caption">Place anniversary.mp4 in the same folder as this page.</p>
+            </div>
+        </section>
     </main>
 
     <script>
-        const millisecondsPerDay =
-            1000 * 60 * 60 * 24;
-
-        const daysElement =
-            document.getElementById("days");
-
-        const daysLeftElement =
-            document.getElementById("daysleft");
-
-        const anniversaryMessage =
-            document.getElementById(
-                "anniversary-message"
-            );
-
+        const millisecondsPerDay = 1000 * 60 * 60 * 24;
+        const daysElement = document.getElementById("days");
+        const daysLeftElement = document.getElementById("daysleft");
+        const anniversaryDaysElement = document.getElementById("anniversary-days");
+        const anniversaryMessage = document.getElementById("anniversary-message");
         let fireworksStarted = false;
 
-        /*
-         * Convert a local calendar date into a UTC timestamp.
-         * This avoids daylight-saving-time calculation errors.
-         */
         function getUtcDateNumber(date) {
-            return Date.UTC(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate()
-            );
+            return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
         }
 
         function updateCounters() {
             const now = new Date();
+            const todayUtc = getUtcDateNumber(now);
+            const startDateUtc = Date.UTC(2025, 7, 1);
+            const daysTogether = Math.max(
+                0,
+                Math.floor((todayUtc - startDateUtc) / millisecondsPerDay)
+            );
 
-            const todayUtc =
-                getUtcDateNumber(now);
+            let anniversaryYear = now.getFullYear();
+            let anniversaryUtc = Date.UTC(anniversaryYear, 7, 1);
 
-            const startDateUtc =
-                Date.UTC(2025, 7, 1);
-
-            const daysTogether =
-                Math.floor(
-                    (
-                        todayUtc -
-                        startDateUtc
-                    ) / millisecondsPerDay
-                );
-
-            let anniversaryYear =
-                now.getFullYear();
-
-            let anniversaryUtc =
-                Date.UTC(
-                    anniversaryYear,
-                    7,
-                    1
-                );
-
-            /*
-             * After 1 August has passed, count down to
-             * 1 August of the following year.
-             */
             if (todayUtc > anniversaryUtc) {
                 anniversaryYear++;
-
-                anniversaryUtc =
-                    Date.UTC(
-                        anniversaryYear,
-                        7,
-                        1
-                    );
+                anniversaryUtc = Date.UTC(anniversaryYear, 7, 1);
             }
 
-            const daysLeft =
-                Math.round(
-                    (
-                        anniversaryUtc -
-                        todayUtc
-                    ) / millisecondsPerDay
-                );
+            const daysLeft = Math.round(
+                (anniversaryUtc - todayUtc) / millisecondsPerDay
+            );
 
-            daysElement.textContent =
-                daysTogether;
+            daysElement.textContent = daysTogether;
+            daysLeftElement.textContent = daysLeft;
+            anniversaryDaysElement.textContent = daysLeft;
 
-            daysLeftElement.textContent =
-                daysLeft;
-
-            /*
-             * On 1 August, show the anniversary message
-             * and start the fireworks.
-             */
             if (daysLeft === 0) {
-                anniversaryMessage.style.display =
-                    "block";
+                anniversaryMessage.style.display = "block";
 
                 if (!fireworksStarted) {
                     fireworksStarted = true;
                     startFireworks();
                 }
             } else {
-                anniversaryMessage.style.display =
-                    "none";
+                anniversaryMessage.style.display = "none";
             }
         }
 
         function startFireworks() {
-            const canvas =
-                document.getElementById(
-                    "fireworks-canvas"
-                );
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                return;
+            }
 
-            const context =
-                canvas.getContext("2d");
-
+            const canvas = document.getElementById("fireworks-canvas");
+            const context = canvas.getContext("2d");
             const particles = [];
 
             function resizeCanvas() {
-                const pixelRatio =
-                    window.devicePixelRatio || 1;
-
-                canvas.width =
-                    window.innerWidth *
-                    pixelRatio;
-
-                canvas.height =
-                    window.innerHeight *
-                    pixelRatio;
-
-                canvas.style.width =
-                    `${window.innerWidth}px`;
-
-                canvas.style.height =
-                    `${window.innerHeight}px`;
-
-                context.setTransform(
-                    pixelRatio,
-                    0,
-                    0,
-                    pixelRatio,
-                    0,
-                    0
-                );
+                const pixelRatio = window.devicePixelRatio || 1;
+                canvas.width = window.innerWidth * pixelRatio;
+                canvas.height = window.innerHeight * pixelRatio;
+                canvas.style.width = `${window.innerWidth}px`;
+                canvas.style.height = `${window.innerHeight}px`;
+                context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
             }
 
-            resizeCanvas();
-
-            window.addEventListener(
-                "resize",
-                resizeCanvas
-            );
-
             function createFirework() {
-                const x =
-                    Math.random() *
-                    window.innerWidth;
+                const x = Math.random() * window.innerWidth;
+                const y = window.innerHeight * (0.15 + Math.random() * 0.55);
+                const hue = Math.random() * 360;
 
-                const y =
-                    window.innerHeight *
-                    (
-                        0.15 +
-                        Math.random() * 0.55
-                    );
-
-                const particleCount = 90;
-                const hue =
-                    Math.random() * 360;
-
-                for (
-                    let i = 0;
-                    i < particleCount;
-                    i++
-                ) {
-                    const angle =
-                        (
-                            Math.PI *
-                            2 *
-                            i
-                        ) / particleCount;
-
-                    const speed =
-                        1.5 +
-                        Math.random() * 4.5;
+                for (let i = 0; i < 80; i++) {
+                    const angle = (Math.PI * 2 * i) / 80;
+                    const speed = 1.5 + Math.random() * 4.5;
 
                     particles.push({
-                        x: x,
-                        y: y,
-
-                        velocityX:
-                            Math.cos(angle) *
-                            speed,
-
-                        velocityY:
-                            Math.sin(angle) *
-                            speed,
-
+                        x,
+                        y,
+                        velocityX: Math.cos(angle) * speed,
+                        velocityY: Math.sin(angle) * speed,
                         gravity: 0.035,
                         opacity: 1,
-
-                        size:
-                            1.5 +
-                            Math.random() * 2.5,
-
-                        hue: hue
+                        size: 1.5 + Math.random() * 2.5,
+                        hue
                     });
                 }
             }
 
-            function updateParticles() {
-                for (
-                    let i =
-                        particles.length - 1;
-                    i >= 0;
-                    i--
-                ) {
-                    const particle =
-                        particles[i];
+            function animate() {
+                context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                context.globalCompositeOperation = "lighter";
 
-                    particle.x +=
-                        particle.velocityX;
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const particle = particles[i];
+                    particle.x += particle.velocityX;
+                    particle.y += particle.velocityY;
+                    particle.velocityY += particle.gravity;
+                    particle.velocityX *= 0.99;
+                    particle.opacity -= 0.012;
 
-                    particle.y +=
-                        particle.velocityY;
-
-                    particle.velocityY +=
-                        particle.gravity;
-
-                    particle.velocityX *=
-                        0.99;
-
-                    particle.opacity -=
-                        0.012;
-
-                    if (
-                        particle.opacity <= 0
-                    ) {
+                    if (particle.opacity <= 0) {
                         particles.splice(i, 1);
+                        continue;
                     }
-                }
-            }
 
-            function drawParticles() {
-                context.clearRect(
-                    0,
-                    0,
-                    window.innerWidth,
-                    window.innerHeight
-                );
-
-                context.globalCompositeOperation =
-                    "lighter";
-
-                for (
-                    const particle of particles
-                ) {
                     context.beginPath();
-
-                    context.arc(
-                        particle.x,
-                        particle.y,
-                        particle.size,
-                        0,
-                        Math.PI * 2
-                    );
-
-                    context.fillStyle =
-                        `hsla(
-                            ${particle.hue},
-                            100%,
-                            65%,
-                            ${particle.opacity}
-                        )`;
-
+                    context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    context.fillStyle = `hsla(${particle.hue}, 100%, 65%, ${particle.opacity})`;
                     context.fill();
                 }
 
-                context.globalCompositeOperation =
-                    "source-over";
+                context.globalCompositeOperation = "source-over";
+                requestAnimationFrame(animate);
             }
 
-            function animate() {
-                updateParticles();
-                drawParticles();
-
-                requestAnimationFrame(
-                    animate
-                );
-            }
-
-            /*
-             * Launch several fireworks immediately.
-             */
+            resizeCanvas();
+            window.addEventListener("resize", resizeCanvas);
             createFirework();
-
-            setTimeout(
-                createFirework,
-                250
-            );
-
-            setTimeout(
-                createFirework,
-                500
-            );
-
-            /*
-             * Continue launching fireworks throughout
-             * the anniversary day.
-             */
-            setInterval(
-                createFirework,
-                700
-            );
-
+            setTimeout(createFirework, 250);
+            setTimeout(createFirework, 500);
+            setInterval(createFirework, 700);
             animate();
         }
 
-        /*
-         * Calculate immediately when the page opens.
-         */
         updateCounters();
-
-        /*
-         * Recalculate every minute so that a page left open
-         * across midnight updates automatically.
-         */
-        setInterval(
-            updateCounters,
-            60 * 1000
-        );
+        setInterval(updateCounters, 60 * 1000);
     </script>
 </body>
 </html>
