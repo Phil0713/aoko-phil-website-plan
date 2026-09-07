@@ -244,7 +244,6 @@
             pointer-events: none;
         }
 
-        /* Keeps the title readable while photographs move behind it. */
         .intro-photo-layer::after {
             content: "";
             position: absolute;
@@ -631,12 +630,20 @@
 
     <script>
         /*
-         * Enter each date and the number of photos taken on that date.
-         * Example: 2 creates photo20250801A.jpg and photo20250801B.jpg.
-         * Add more dates here whenever you upload new photographs.
+         * These entries match the photo files in the repository.
+         * The number is how many photos that date has:
+         * 1 creates A; 2 creates A and B; 3 creates A, B and C, etc.
          */
         const introPhotoDays = {
-            "20250801": 2
+            "20251207": 1,
+            "20251209": 1,
+            "20251210": 2,
+            "20251211": 1,
+            "20260107": 2,
+            "20260116": 1,
+            "20260129": 1,
+            "20260202": 1,
+            "20260214": 1
         };
 
         const introPhotoFiles = Object.entries(introPhotoDays).flatMap(
@@ -651,6 +658,7 @@
         const introPhotoLayer = document.getElementById("intro-photo-layer");
         const introSection = document.getElementById("intro");
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const unavailableIntroPhotos = new Set();
         let introPhotoTimer = null;
         let previousIntroPhoto = "";
 
@@ -659,13 +667,22 @@
         }
 
         function chooseIntroPhoto() {
-            if (introPhotoFiles.length === 1) {
-                return introPhotoFiles[0];
+            const availablePhotos = introPhotoFiles.filter(
+                (fileName) => !unavailableIntroPhotos.has(fileName)
+            );
+
+            if (availablePhotos.length === 0) {
+                return null;
             }
 
-            const choices = introPhotoFiles.filter(
+            if (availablePhotos.length === 1) {
+                return availablePhotos[0];
+            }
+
+            const choices = availablePhotos.filter(
                 (fileName) => fileName !== previousIntroPhoto
             );
+
             return choices[Math.floor(Math.random() * choices.length)];
         }
 
@@ -675,6 +692,12 @@
             }
 
             const fileName = chooseIntroPhoto();
+
+            if (!fileName) {
+                stopIntroPhotos();
+                return;
+            }
+
             previousIntroPhoto = fileName;
 
             const photo = new Image();
@@ -716,6 +739,10 @@
 
                 introPhotoLayer.appendChild(photo);
                 window.setTimeout(() => photo.remove(), duration * 1000 + 250);
+            });
+
+            photo.addEventListener("error", () => {
+                unavailableIntroPhotos.add(fileName);
             });
 
             photo.src = fileName;
