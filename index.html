@@ -215,9 +215,14 @@
             text-decoration: none;
         }
 
+        #intro {
+            isolation: isolate;
+        }
+
         #intro::before {
             content: "";
             position: absolute;
+            z-index: 1;
             width: min(70vw, 700px);
             aspect-ratio: 1;
             border: 1px solid rgba(185, 86, 123, 0.18);
@@ -225,6 +230,64 @@
             box-shadow:
                 0 0 0 70px rgba(255, 255, 255, 0.18),
                 0 0 0 140px rgba(255, 255, 255, 0.1);
+        }
+
+        #intro .section-content {
+            z-index: 3;
+        }
+
+        .intro-photo-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* Keeps the title readable while photographs move behind it. */
+        .intro-photo-layer::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                circle at center,
+                rgba(255, 248, 251, 0.9) 0%,
+                rgba(255, 248, 251, 0.48) 38%,
+                rgba(255, 248, 251, 0.12) 78%
+            );
+        }
+
+        .intro-floating-photo {
+            position: absolute;
+            display: block;
+            width: var(--photo-width);
+            aspect-ratio: var(--photo-ratio);
+            border: 6px solid rgba(255, 255, 255, 0.88);
+            border-radius: 20px;
+            opacity: 0;
+            object-fit: cover;
+            box-shadow: 0 24px 70px rgba(67, 21, 40, 0.24);
+            filter: saturate(0.9) contrast(0.96);
+            transform: rotate(var(--photo-rotation)) scale(0.92);
+            will-change: opacity, transform;
+            animation: intro-photo-life var(--photo-duration) ease-in-out forwards;
+        }
+
+        @keyframes intro-photo-life {
+            0% {
+                opacity: 0;
+                transform: rotate(var(--photo-rotation)) scale(0.92);
+            }
+
+            22%, 65% {
+                opacity: var(--photo-opacity);
+                transform: rotate(var(--photo-rotation)) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: rotate(var(--photo-rotation)) scale(1.04);
+            }
         }
 
         #history {
@@ -449,6 +512,10 @@
                 scroll-behavior: auto;
             }
 
+            .intro-photo-layer {
+                display: none;
+            }
+
             #anniversary-message {
                 animation: none;
             }
@@ -478,6 +545,12 @@
 
     <main>
         <section id="intro" class="page-section">
+            <div
+                id="intro-photo-layer"
+                class="intro-photo-layer"
+                aria-hidden="true"
+            ></div>
+
             <div class="section-content">
                 <p class="eyebrow">Our secret base</p>
                 <h1>Aoko <span>&amp;</span> Phil</h1>
@@ -557,6 +630,130 @@
     </main>
 
     <script>
+        /*
+         * Enter each date and the number of photos taken on that date.
+         * Example: 2 creates photo20250801A.jpg and photo20250801B.jpg.
+         * Add more dates here whenever you upload new photographs.
+         */
+        const introPhotoDays = {
+            "20250801": 2
+        };
+
+        const introPhotoFiles = Object.entries(introPhotoDays).flatMap(
+            ([date, photoCount]) =>
+                Array.from(
+                    { length: Math.min(photoCount, 26) },
+                    (_, index) =>
+                        `photo${date}${String.fromCharCode(65 + index)}.jpg`
+                )
+        );
+
+        const introPhotoLayer = document.getElementById("intro-photo-layer");
+        const introSection = document.getElementById("intro");
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        let introPhotoTimer = null;
+        let previousIntroPhoto = "";
+
+        function getRandomNumber(minimum, maximum) {
+            return minimum + Math.random() * (maximum - minimum);
+        }
+
+        function chooseIntroPhoto() {
+            if (introPhotoFiles.length === 1) {
+                return introPhotoFiles[0];
+            }
+
+            const choices = introPhotoFiles.filter(
+                (fileName) => fileName !== previousIntroPhoto
+            );
+            return choices[Math.floor(Math.random() * choices.length)];
+        }
+
+        function showRandomIntroPhoto() {
+            if (!introPhotoLayer || introPhotoFiles.length === 0) {
+                return;
+            }
+
+            const fileName = chooseIntroPhoto();
+            previousIntroPhoto = fileName;
+
+            const photo = new Image();
+            const duration = getRandomNumber(12, 18);
+            const isSmallScreen = window.innerWidth <= 800;
+            const width = isSmallScreen
+                ? getRandomNumber(135, 225)
+                : getRandomNumber(190, 360);
+
+            photo.className = "intro-floating-photo";
+            photo.alt = "";
+            photo.decoding = "async";
+            photo.fetchPriority = "low";
+            photo.style.left = `${getRandomNumber(-6, 82)}%`;
+            photo.style.top = `${getRandomNumber(-7, 78)}%`;
+            photo.style.setProperty("--photo-width", `${width}px`);
+            photo.style.setProperty(
+                "--photo-ratio",
+                Math.random() > 0.5 ? "4 / 3" : "3 / 4"
+            );
+            photo.style.setProperty(
+                "--photo-rotation",
+                `${getRandomNumber(-11, 11)}deg`
+            );
+            photo.style.setProperty("--photo-duration", `${duration}s`);
+            photo.style.setProperty(
+                "--photo-opacity",
+                `${getRandomNumber(0.42, 0.68)}`
+            );
+
+            photo.addEventListener("load", () => {
+                const visiblePhotos = introPhotoLayer.querySelectorAll(
+                    ".intro-floating-photo"
+                );
+
+                if (visiblePhotos.length >= (isSmallScreen ? 3 : 5)) {
+                    visiblePhotos[0].remove();
+                }
+
+                introPhotoLayer.appendChild(photo);
+                window.setTimeout(() => photo.remove(), duration * 1000 + 250);
+            });
+
+            photo.src = fileName;
+        }
+
+        function startIntroPhotos() {
+            if (introPhotoTimer || reduceMotion.matches) {
+                return;
+            }
+
+            showRandomIntroPhoto();
+            introPhotoTimer = window.setInterval(showRandomIntroPhoto, 2800);
+        }
+
+        function stopIntroPhotos() {
+            if (introPhotoTimer) {
+                window.clearInterval(introPhotoTimer);
+                introPhotoTimer = null;
+            }
+        }
+
+        if (introSection && "IntersectionObserver" in window) {
+            const introObserver = new IntersectionObserver(
+                ([entry]) => {
+                    if (entry.isIntersecting) {
+                        startIntroPhotos();
+                    } else {
+                        stopIntroPhotos();
+                    }
+                },
+                { threshold: 0.12 }
+            );
+
+            introObserver.observe(introSection);
+        } else {
+            startIntroPhotos();
+        }
+
         const millisecondsPerDay = 1000 * 60 * 60 * 24;
         const daysElement = document.getElementById("days");
         const daysLeftElement = document.getElementById("daysleft");
